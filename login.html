@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body style="background-color: #FFB347;"> <!-- Color de fondo cambiado -->
+
+    <div class="container mt-4">
+        <h1 class="text-center">BIENVENIDOS</h1>
+
+        <!-- FORMULARIO DE LOGIN -->
+        <div class="card p-4 shadow">
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="usuario" class="form-label">Usuario:</label>
+                    <input type="text" class="form-control" id="usuario" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="clave" class="form-label">Clave:</label>
+                    <input type="password" class="form-control" id="clave" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="chofer" class="form-label">Chofer:</label>
+                    <input type="text" class="form-control" id="chofer" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="Medico" class="form-label">Medico:</label>
+                    <input type="text" class="form-control" id="Medico" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="fecha" class="form-label">Fecha:</label>
+                    <input type="date" class="form-control" id="fecha" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+            </form>
+        </div>
+
+        <!-- MENSAJE AL FINAL -->
+        <div class="text-center mt-4">
+            <p class="fst-italic text-muted small">
+                ""Gracias por su esfuerzo y dedicación. Juntos seguimos adelante, superando desafíos y construyendo un mejor futuro. 
+                Su trabajo es fundamental, y esperamos seguir creciendo juntos. ¡Sigamos adelante!""
+            </p>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT PARA EL LOGIN -->
+    <script>
+        // Verificar si el usuario ya está logueado
+        if (localStorage.getItem("loggedIn") === "true") {
+            // Si está logueado, redirigirlo al servicios.html
+            window.location.href = "servicios.html";
+        }
+
+        // Definir el usuario y clave
+        const USUARIO = "aya ambu";
+        const CLAVE = "2026";
+
+        // Establecer la fecha actual del sistema en el campo de fecha
+        document.getElementById("fecha").value = new Date().toISOString().split('T')[0];
+
+        // Manejar el formulario de login
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault();  // Prevenir el comportamiento por defecto del formulario
+
+            // Obtener los valores ingresados
+            let usuario = document.getElementById("usuario").value.toLowerCase();  // Convertir a minúsculas
+            let clave = document.getElementById("clave").value;
+            let chofer = document.getElementById("chofer").value;
+            let Medico = document.getElementById("Medico").value;
+            let fecha = document.getElementById("fecha").value;
+
+            // Comprobar si las credenciales son correctas
+            if (usuario === USUARIO && clave === CLAVE) {
+                // Almacenar la sesión en localStorage
+                localStorage.setItem("loggedIn", "true");
+                localStorage.setItem("chofer", chofer);
+                localStorage.setItem("Medico", Medico);
+                localStorage.setItem("fecha", fecha);
+                localStorage.setItem("usuario", usuario); // También guardamos el nombre de usuario
+                // Redirigir a la página de registro
+                window.location.href = "servicios.html";
+            } else {
+                alert("Usuario o clave incorrectos");
+            }
+        });
+    </script>
+
+</body>
+</html>

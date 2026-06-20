@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Servicios</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.21/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body style="background-color:#FFA500;">
+
+<div class="container mt-4">
+
+<h1 class="text-center">Registro de Servicios</h1>
+
+<div class="card p-4 shadow">
+<form id="miFormulario">
+
+<div class="row">
+<div class="col-md-6">
+<label>Servicio Médico:</label>
+<select id="medicoServicio" class="form-control" required>
+<option value="">Seleccione</option>
+<option value="Con médico">Con médico</option>
+<option value="Sin médico">Sin médico</option>
+</select>
+</div>
+
+<div class="col-md-6">
+<label>Obra Social:</label>
+<input type="text" id="obraSocial" class="form-control" required>
+</div>
+</div>
+
+<div class="row mt-3">
+<div class="col-md-6">
+<label>Número Servicio:</label>
+<input type="text" id="numeroServicio" class="form-control" required>
+</div>
+
+<div class="col-md-6">
+<label>Instante Previsto:</label>
+<input type="time" id="instantePrevisto" class="form-control" required>
+</div>
+</div>
+
+<div class="row mt-3">
+<div class="col-md-6">
+<label>Paciente:</label>
+<input type="text" id="paciente" class="form-control" required>
+</div>
+
+<div class="col-md-6">
+<label>Motivo:</label>
+<input type="text" id="motivoLlamado" class="form-control" required>
+</div>
+</div>
+
+<div class="row mt-3">
+<div class="col-md-6">
+<label>Origen:</label>
+<input type="text" id="origen" class="form-control" required>
+</div>
+
+<div class="col-md-6">
+<label>Localidad Origen:</label>
+<input type="text" id="localidadOrigen" class="form-control" required>
+</div>
+</div>
+
+<div class="row mt-3">
+<div class="col-md-6">
+<label>Destino:</label>
+<input type="text" id="destino" class="form-control" required>
+</div>
+
+<div class="col-md-6">
+<label>Localidad Destino:</label>
+<input type="text" id="localidadDestino" class="form-control" required>
+</div>
+</div>
+
+<div class="row mt-3">
+
+<div class="col-md-6">
+<label>KM:</label>
+<input type="text" id="km" class="form-control" required>
+</div>
+
+<div class="col-md-6">
+<label>Minutos espera:</label>
+<input type="text" id="horasEspera" class="form-control" required>
+</div>
+
+</div>
+
+<button class="btn btn-primary w-100 mt-3">Guardar</button>
+</form>
+</div>
+
+<button id="verRegistrosBtn" class="btn btn-secondary w-100 mt-3">Ver Registros</button>
+<button id="borrarUltimoBtn" class="btn btn-warning w-100 mt-2" style="display:none;">Borrar último</button>
+<button id="descargarPDF" class="btn btn-success w-100 mt-2" style="display:none;">Descargar PDF</button>
+
+<div class="table-responsive mt-3" id="tablaRegistros" style="display:none;">
+<table class="table table-bordered table-striped">
+<thead class="table-dark">
+<tr>
+<th>Médico Servicio</th>
+<th>Obra Social</th>
+<th>N° Servicio</th>
+<th>Instante</th>
+<th>Paciente</th>
+<th>Motivo</th>
+<th>Origen</th>
+<th>Loc Origen</th>
+<th>Destino</th>
+<th>Loc Destino</th>
+<th>KM</th>
+<th>Espera</th>
+</tr>
+</thead>
+<tbody id="registroDatos"></tbody>
+</table>
+</div>
+
+<button id="cerrarSesionBtn" class="btn btn-danger w-100 mt-3">Cerrar sesión</button>
+
+</div>
+
+<script>
+
+if (localStorage.getItem("loggedIn") !== "true") {
+window.location.href = "login.html";
+}
+
+document.getElementById("cerrarSesionBtn").addEventListener("click", () => {
+if (confirm("¿Cerrar sesión?")) {
+localStorage.clear();
+window.location.href = "login.html";
+}
+});
+
+window.onload = () => {
+let registros = JSON.parse(localStorage.getItem("registros")) || [];
+registros.forEach(addRow);
+
+if (registros.length > 0) {
+document.getElementById("borrarUltimoBtn").style.display = "block";
+}
+};
+
+document.getElementById("miFormulario").addEventListener("submit", function(e){
+e.preventDefault();
+
+let registro = {
+medicoServicio: document.getElementById("medicoServicio").value,
+obraSocial: document.getElementById("obraSocial").value,
+numeroServicio: document.getElementById("numeroServicio").value,
+instantePrevisto: document.getElementById("instantePrevisto").value,
+paciente: document.getElementById("paciente").value,
+motivoLlamado: document.getElementById("motivoLlamado").value,
+origen: document.getElementById("origen").value,
+localidadOrigen: document.getElementById("localidadOrigen").value,
+destino: document.getElementById("destino").value,
+localidadDestino: document.getElementById("localidadDestino").value,
+km: document.getElementById("km").value,
+horasEspera: document.getElementById("horasEspera").value
+};
+
+let registros = JSON.parse(localStorage.getItem("registros")) || [];
+registros.push(registro);
+localStorage.setItem("registros", JSON.stringify(registros));
+
+addRow(registro);
+document.getElementById("borrarUltimoBtn").style.display = "block";
+
+this.reset();
+});
+
+function addRow(r){
+let t = document.getElementById("registroDatos");
+let row = t.insertRow();
+
+row.innerHTML = `
+<td>${r.medicoServicio}</td>
+<td>${r.obraSocial}</td>
+<td>${r.numeroServicio}</td>
+<td>${r.instantePrevisto}</td>
+<td>${r.paciente}</td>
+<td>${r.motivoLlamado}</td>
+<td>${r.origen}</td>
+<td>${r.localidadOrigen}</td>
+<td>${r.destino}</td>
+<td>${r.localidadDestino}</td>
+<td>${r.km}</td>
+<td>${r.horasEspera}</td>
+`;
+}
+
+document.getElementById("verRegistrosBtn").addEventListener("click", () => {
+document.getElementById("tablaRegistros").style.display = "block";
+document.getElementById("descargarPDF").style.display = "block";
+});
+// 🗑 BORRAR ÚLTIMO
+document.getElementById("borrarUltimoBtn").addEventListener("click", () => {
+let registros = JSON.parse(localStorage.getItem("registros")) || [];
+registros.pop();
+
+localStorage.setItem("registros", JSON.stringify(registros));
+
+document.getElementById("registroDatos").innerHTML = "";
+registros.forEach(addRow);
+
+if (registros.length === 0) {
+document.getElementById("borrarUltimoBtn").style.display = "none";
+}
+});
+
+// 📄 PDF
+document.getElementById("descargarPDF").addEventListener("click", () => {
+
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF('landscape');
+
+// LOGIN DATA
+let chofer = localStorage.getItem("chofer") || "SIN CHOFER";
+let medicoLogin = localStorage.getItem("Medico") || "SIN MÉDICO";
+let fecha = localStorage.getItem("fecha") || "SIN FECHA";
+let hora = new Date().toLocaleTimeString();
+
+// ENCABEZADO
+doc.text("REGISTRO DE SERVICIOS", 10, 10);
+doc.text(`Chofer: ${chofer}`, 10, 20);
+doc.text(`Médico Login: ${medicoLogin}`, 10, 30);
+doc.text(`Fecha: ${fecha}`, 10, 40);
+doc.text(`Hora impresión: ${hora}`, 10, 50);
+
+// DATOS
+let registros = JSON.parse(localStorage.getItem("registros")) || [];
+
+let rows = registros.map(r => [
+r.medicoServicio,
+r.obraSocial,
+r.numeroServicio,
+r.instantePrevisto,
+r.paciente,
+r.motivoLlamado,
+r.origen,
+r.localidadOrigen,
+r.destino,
+r.localidadDestino,
+r.km,
+r.horasEspera
+]);
+
+doc.autoTable({
+head: [[
+"Médico Servicio",
+"Obra Social",
+"N° Servicio",
+"Instante",
+"Paciente",
+"Motivo",
+"Origen",
+"Loc Origen",
+"Destino",
+"Loc Destino",
+"KM",
+"Espera"
+]],
+body: rows,
+startY: 60,
+
+headStyles:{
+fillColor:[255,102,0],
+textColor:[255,255,255]
+}
+});
+
+doc.save("serviciosCM.pdf");
+});
+
+</script>
+
+</body>
+</html>
